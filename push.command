@@ -1,8 +1,8 @@
 #!/bin/bash
-if [ ! -z "`echo $0 | grep "\."`" ]; then
-	ProjectName="$(pwd | sed -e "s|/.*/||")"
-else
+if [ ! -z "`echo $0 | grep "^/*$"`" ]; then
 	ProjectName="$(echo $0 | sed -e "s|/[^/]*$||" -e "s|/.*/||")"
+else
+	ProjectName="$(pwd | sed -e "s|/.*/||")"
 fi
 [ -z "$ProjectName" ] && echo "Null ProJect Name!" && exit
 GitUrl="https://github.com/monlor"
