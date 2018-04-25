@@ -1,14 +1,16 @@
 #!/bin/bash
-if [ ! -z "`echo $0 | grep "^/*$"`" ]; then
-	ProjectName="$(echo $0 | sed -e "s|/[^/]*$||" -e "s|/.*/||")"
+if [ ! -z "`echo $0 | grep "^[^.]"`" ]; then
+	ProjectPath="$(echo $0 | sed -e "s|/[^/]*$||")"
+	ProjectName="$(echo $ProjectPath | sed -e "s|/.*/||")"
 else
-	ProjectName="$(pwd | sed -e "s|/.*/||")"
+	ProjectPath="$(pwd)"
+	ProjectName="$(echo $ProjectPath | sed -e "s|/.*/||")"
 fi
-[ -z "$ProjectName" ] && echo "Null ProJect Name!" && exit
+
+[ -z "$ProjectName" ] && echo "Null Project Name!" && exit
 GitUrl="https://github.com/monlor"
 echo "Push [$ProjectName] To [$GitUrl/$ProjectName.git]."
-path=~/SyncFile/Project/"$ProjectName"
-cd $path
+cd $ProjectPath
 find . -name '.DS_Store' | xargs rm -rf
 git add .
 git commit -m "`date +%Y-%m-%d`"
