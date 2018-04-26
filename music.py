@@ -16,10 +16,10 @@ chrome_options.add_argument('--headless')
 chrome_options.add_argument('--disable-gpu')
 driver = webdriver.Chrome(chrome_options=chrome_options)
 driver2 = webdriver.Chrome(chrome_options=chrome_options)
-request_url="http://music.sonimei.cn/"
+request_url="http://music.sonimei.cn"
+dl_place="qq"
 #request_url="https://music.2333.me/"
-driver.get(request_url)
-driver.find_elements_by_class_name("am-radio-inline")[1].click()
+# driver.find_elements_by_class_name("am-radio-inline")[1].click()
 args = sys.argv
 times = 5
 # 获取参数
@@ -45,7 +45,6 @@ else:
 	def download_failed(line):
 		global times
 		print("\t歌曲下载过程出错，重新下载...")
-		driver.get(request_url)
 		if times>0:
 			f.seek(-readlen,1)
 		else:
@@ -64,16 +63,13 @@ else:
 			break
 		line = line.strip("\n").decode()
 		print("准备下载歌曲【%s】："%(line))
-		bar = driver.find_element_by_id("j-input")	
-		# 添加输入框内容
 		try:
-			bar.clear()
+			re.findall(r"^http.*",line)[0]
 		except Exception:
-			driver.get(request_url)
-		bar.send_keys(line)
-		time.sleep(1)
-		driver.find_element_by_id("j-submit").click()
-
+			dl_info="/?name="+line+"&type="+dl_place
+		else:
+			dl_info="/?url="+line
+		driver.get(request_url+dl_info)
 		try:
 			# 等在音乐作者信息加载
 			element = WebDriverWait(driver,25).until(lambda x:driver.find_element_by_class_name("aplayer-author").text)
@@ -92,9 +88,8 @@ else:
 		# 获取音乐ID
 		# musicid=re.findall(r"song/(.+?)\.",qqurl)[0]
 		# print("%s %s,%s"%(title,author,url))
-		# 返回主页
-		driver.find_element_by_id("j-back").click()	
-		
+		# 获取歌曲信息
+		driver2.get(qqurl)
 		# 下载歌曲
 		try:
 			print("\t下载歌曲文件...")
@@ -110,7 +105,6 @@ else:
 		# 插入音乐专辑图等信息
 		print("\t写入歌曲信息...")
 		# 根据歌曲id进入qq音乐，获取歌曲信息
-		driver2.get(qqurl)
 		try:
 			# 等待音乐年份信息加载
 			element = WebDriverWait(driver,10).until(lambda x:driver2.find_elements_by_class_name("data_info__item")[4].text)
@@ -158,7 +152,7 @@ else:
 			continue
 		else:
 			#写入专辑信息 lame
-			os.system("lame -b 512 --ti "+"\""+pic_path+"\" "+"\""+music_path+"\""+" --tt \""+title+"\" --ta \""+artist+"\" --tl \""+malbum+"\" --ty \""+mtime+"\" --tg \""+mtype+"\" &> /dev/null")
+			os.system("lame -b 512 --ti "+"\""+pic_path+"\" "+" --tt \""+title+"\" --ta \""+artist+"\" --tl \""+malbum+"\" --ty \""+mtime+"\" --tg \""+mtype+"\" &> /dev/null "+"\""+music_path+"\"")
 			os.system("rm -rf \""+pic_path+"\"")
 			os.system("mv \""+music_path+"\".mp3 \""+music_path+"\"")
 			times = 5
