@@ -10,8 +10,17 @@ NESearchUrl="http://music.163.com/api/cloudsearch/pc?type=1&offset=0&limit=1&s="
 NESongUrl="http://music.163.com/api/song/detail"
 NEDlUrl="http://music.163.com/song/media/outer/url?id="
 NEPicUrl=""
-[ -z "$1" ] && echo "请输入下载信息，链接或歌名！" || dlkey="$1"
-[ -z "$2" ] && dlpath="." || dlpath="$2"
+arg1="$1"
+arg2="$2"
+arg3="$3"
+case "$arg1" in
+	-qq) source="qq" ;;
+	-ne) source="ne" ;;
+	*) source="qq" && arg3="$arg2" && arg2="$arg1" ;;
+esac
+dlkey="$arg2"
+[ -z "$arg3" ] && dlpath="." || dlpath="$arg3"
+[ ! -d "$dlpath" ] && mkdir -p "$dlpath"
 dlkey="$(echo $dlkey | sed -e 's/ /%20/g')"
 #歌曲信息
 songid=""
@@ -145,7 +154,7 @@ function qqMusicDl() {
 		songmid="$(echo "$dlkey" | sed -e "s/http.*song\///" -e "s/\.html.*$//")"
 	fi
 	getQQSongInfo "$songmid"
-	SongDl
+	qqSongDl
 	addSongInfo
 
 }
@@ -200,4 +209,23 @@ function getNESongInfo() {
 
 }
 
-neMusicDl
+function help() {
+	echo "Usage: $0 [-ne|-qq] {name/url} [save path]"
+	echo "Option:"
+	echo "\t-ne\tDownload from netease music"
+	echo "\t-qq\tDownload from qq music(default)"
+	echo "Example:"
+	echo "\t$0 \"不要说话 陈奕迅\""
+	echo "\t$0 \"不要说话\" \"./music\""
+	echo "\t$0 -ne \"不要说话\""
+	echo "\t$0 \"https://y.qq.com/n/yqq/song/002B2EAA3brD5b.html\""
+}
+
+function main() {
+	[ -z "$(which jq)" ] && echo "请安装jq工具，用于解析json数据" && exit
+	[ -z "$(which lame)" ] && echo "请安装lame工具，用于写入歌曲信息" && exit
+	[ -z "$arg1" ] && help && exit
+	[ "$source" == "qq" ] && qqMusicDl || neMusicDl	
+}
+
+main
