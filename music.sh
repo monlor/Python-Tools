@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 #Need:jq lame
 guid=5150825362
 QQSearchUrl="http://c.y.qq.com/soso/fcgi-bin/search_for_qq_cp?n=1&format=json&w="
@@ -19,8 +19,8 @@ case "$arg1" in
 	*) source="qq" && arg3="$arg2" && arg2="$arg1" ;;
 esac
 dlkey="$arg2"
-[ -z "$arg3" ] && dlpath="." || dlpath="$arg3"
-[ ! -d "$dlpath" ] && mkdir -p "$dlpath"
+[[ -z "$arg3" ]] && dlpath="." || dlpath="$arg3"
+[[ ! -d "$dlpath" ]] && mkdir -p "$dlpath"
 dlkey="$(echo $dlkey | sed -e 's/ /%20/g')"
 #歌曲信息
 songid=""
@@ -51,17 +51,17 @@ function getQQSongMid() {
 
 #传入参数，歌曲mid
 function getQQSongInfo() {
-	[ -z "$1" ] && echo "未识别出歌曲id！" && exit
+	[[ -z "$1" ]] && echo "未识别出歌曲id！" && exit
 	local SongData="$(curl -s "$QQSongInfoUrl$1" | jq '.data[0]')"
-	[ "$SongData" == "null" ] && echo "未找到歌曲信息！" && exit
+	[[ "$SongData" == "null" ]] && echo "未找到歌曲信息！" && exit
 	title="$(echo "$SongData" | jq '.title')"
 	time="$(echo "$SongData" | jq '.time_public')"
 	for i in $(seq 0 4)	
 	do
 		tmp="$(echo "$SongData" | jq ".singer[$i].title")"
 		if [ $? -eq 0 ]; then
-			[ "$tmp" == "null" ] && break
-			[ -z "$artist" ] && artist="$tmp" || artist="$artist","$tmp"
+			[[ "$tmp" == "null" ]] && break
+			[[ -z "$artist" ]] && artist="$tmp" || artist="$artist","$tmp"
 		fi
 	done
 	albumtitle="$(echo "$SongData" | jq '.album.title')"
@@ -97,10 +97,10 @@ function getGenre() {
 #文件下载，传入参数，1.下载路径，2.下载地址
 function fileDl() {
 	result=$(curl -skL -w %{http_code} -o "$1" "$2")
-	if [ "$result" == "200" ]; then
+	if [[ "$result" == "200" ]]; then
 		return 0 
 	else
-		[ -f "$1" -a ! -z "$1" ] && rm -rf "$1"
+		[[ -f "$1" && ! -z "$1" ]] && rm -rf "$1"
 		return 1
 	fi
 }
@@ -129,7 +129,7 @@ function qqSongDl() {
 		if [ $? -eq 0 ]; then
 			break
 		else
-			[ "$i" == '3' ] && echo "歌曲下载失败！" && exit
+			[[ "$i" == '3' ]] && echo "歌曲下载失败！" && exit
 		fi
 	done
 	#下载专辑图
@@ -148,7 +148,7 @@ function neSongDl() {
 
 function qqMusicDl() {
 
-	if [ -z "$(echo $dlkey | grep "^http.*")" ]; then
+	if [[ -z "$(echo $dlkey | grep "^http.*")" ]]; then
 		getQQSongMid
 	else
 		songmid="$(echo "$dlkey" | sed -e "s/http.*song\///" -e "s/\.html.*$//")"
@@ -161,7 +161,7 @@ function qqMusicDl() {
 
 function neMusicDl() {
 
-	if [ -z "$(echo $dlkey | grep "^http.*")" ]; then
+	if [[ -z "$(echo $dlkey | grep "^http.*")" ]]; then
 		getNESongId 
 	else
 		songid="$(echo "$dlkey" | sed -e "s/^.*id=//")"
@@ -175,7 +175,7 @@ function neMusicDl() {
 function getNESongId() {
 
 	local SongData="$(curl -s -X POST "$NESearchUrl$dlkey" | jq '.result.songs[0]')"
-	[ "$SongData" == "null" ] && echo "未找到歌曲信息！" && exit
+	[[ "$SongData" == "null" ]] && echo "未找到歌曲信息！" && exit
 	songid="$(echo "$SongData" | jq '.id')"
 
 }
@@ -184,15 +184,15 @@ function getNESongId() {
 function getNESongInfo() {
 
 	local SongData="$(curl -s -d "id=$1&ids=[$1]" "$NESongUrl" | jq '.songs[0]')"
-	[ "$SongData" == "null" ] && echo "未找到歌曲信息！" && exit
+	[[ "$SongData" == "null" ]] && echo "未找到歌曲信息！" && exit
 	title="$(echo "$SongData" | jq '.name')"
 	songid="$(echo "$SongData" | jq '.id')"
 	for i in $(seq 0 4)	
 	do
 		tmp="$(echo "$SongData" | jq ".artists[$i].name")"
 		if [ $? -eq 0 ]; then
-			[ "$tmp" == "null" ] && break
-			[ -z "$artist" ] && artist="$tmp" || artist="$artist","$tmp"
+			[[ "$tmp" == "null" ]] && break
+			[[ -z "$artist" ]] && artist="$tmp" || artist="$artist","$tmp"
 		fi
 	done
 
@@ -205,7 +205,7 @@ function getNESongInfo() {
 	songalias="$(dealStr "$songalias")"
 	albumtitle="$(dealStr "$albumtitle")"
 	NEPicUrl="$(dealStr "$NEPicUrl")"
-	[ "$songalias" == "null" ] && songalias=""
+	[[ "$songalias" == "null" ]] && songalias=""
 
 }
 
@@ -222,10 +222,10 @@ function help() {
 }
 
 function main() {
-	[ -z "$(which jq)" ] && echo "请安装jq工具，用于解析json数据" && exit
-	[ -z "$(which lame)" ] && echo "请安装lame工具，用于写入歌曲信息" && exit
-	[ -z "$arg1" ] && help && exit
-	[ "$source" == "qq" ] && qqMusicDl || neMusicDl	
+	[[ -z "$(which jq)" ]] && echo "请安装jq工具，用于解析json数据" && exit
+	[[ -z "$(which lame)" ]] && echo "请安装lame工具，用于写入歌曲信息" && exit
+	[[ -z "$arg1" ]] && help && exit
+	[[ "$source" == "qq" ]] && qqMusicDl || neMusicDl	
 }
 
 main
