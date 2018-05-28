@@ -210,15 +210,15 @@ function getNESongInfo() {
 }
 
 function help() {
-	echo "Usage: $0 [-ne|-qq] {name/url} [save path]"
-	echo "Option:"
-	echo "\t-ne\tDownload from netease music"
-	echo "\t-qq\tDownload from qq music(default)"
-	echo "Example:"
-	echo "\t$0 \"不要说话 陈奕迅\""
-	echo "\t$0 \"不要说话\" \"./music\""
-	echo "\t$0 -ne \"不要说话\""
-	echo "\t$0 \"https://y.qq.com/n/yqq/song/002B2EAA3brD5b.html\""
+	echo -e "Usage: $0 [-ne|-qq] {name/url} [save path]"
+	echo -e "Option:"
+	echo -e "\t-ne\tDownload from netease music"
+	echo -e "\t-qq\tDownload from qq music(default)"
+	echo -e "Example:"
+	echo -e "\t$0 \"不要说话 陈奕迅\""
+	echo -e "\t$0 \"不要说话\" \"./music\""
+	echo -e "\t$0 -ne \"不要说话\""
+	echo -e "\t$0 \"https://y.qq.com/n/yqq/song/002B2EAA3brD5b.html\""
 }
 
 function main() {
