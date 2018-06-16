@@ -68,7 +68,7 @@ function getQQSongInfo() {
 	albummid="$(echo "$SongData" | jq '.album.mid')"
 	tmp="$(echo "$SongData" | jq '.genre')"
 	genre="$(getGenre "$tmp")"
-	vkey="$(curl -s "$QQKeyUrl" | jq '.key')"
+	vkey="$(curl -s --referer "http://y.qq.com" "$QQKeyUrl" | jq '.key')"
 	#处理字符引号
 	title="$(dealStr "$title")"
 	time="$(dealStr "$time")"
